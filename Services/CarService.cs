@@ -20,14 +20,18 @@ public class CarService(AppDbContext db)
     public async Task<bool> IsInsuranceValidAsync(long carId, DateOnly date)
     {
         var carExists = await _db.Cars.AnyAsync(c => c.Id == carId);
-        if (!carExists) throw new KeyNotFoundException($"Car {carId} not found");
+        if (!carExists)
+        {
+            throw new KeyNotFoundException($"Car {carId} not found.");
+        }
 
         return await _db.Policies.AnyAsync(p =>
             p.CarId == carId &&
             p.StartDate <= date &&
-            (p.EndDate == null || p.EndDate >= date)
+            p.EndDate >= date
         );
     }
+
     public async Task<InsuranceClaim> RegisterClaimAsync(long carId, ClaimDto claimDto)
     {
         var carExists = await _db.Cars.AnyAsync(c => c.Id == carId);
